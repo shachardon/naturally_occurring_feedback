@@ -1,0 +1,18 @@
+There are two different patterns in user feedback subsequent to assistant utterances:
+Repeat or Rephrase (UR1) - The user repeats or rephrases their concern, e.g., Actually, I wanted ...
+Positive Feedback (UR5) - The user confirms that the assistant did a good job by directly saying so or thanking it, e.g., Thank you
+
+Given these guidelines, please recognize such user responses in the following dialogue, and state your level of confidence. Please use the format:
+{
+"User Response Pattern": [Insert User Response Pattern],
+"User Response Text": [Insert User Response Text],
+"Confidence Level (1-5)": [Insert Confidence Level]
+}
+
+If there is no feedback, use the following format:
+{
+"User Response Pattern": "No Feedback",
+"User Response Text": "",
+"Confidence Level (1-5)": [Insert Confidence Level]
+}
+

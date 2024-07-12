@@ -1,0 +1,15 @@
+Given a conversation between a user and an assistant model, please recognize spans of text that can inform about the satisfaction of the user.
+These can be explicit/implicit expressions of satisfaction or dissatisfaction in the user responses.
+
+Given these guidelines, please recognize such user responses in the following dialogue. Please use the format:
+{
+"User Response Text": [Insert User Response Text]
+"User Response Satisfaction (1-5)": [Insert Satisfaction Level]
+}
+
+If there is no feedback, use the following format:
+{
+"User Response Text": ""
+"User Response Satisfaction (1-5)": -1,
+}
+

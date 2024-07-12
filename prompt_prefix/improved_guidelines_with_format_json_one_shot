@@ -1,0 +1,48 @@
+There are five different patterns in user responses subsequent to errors in assistant utterances:
+Repeat or Rephrase (UR1) - The user repeats or rephrases their concern, e.g., Actually, I wanted ...
+Make Aware with Correction (UR2) - The user makes the system aware of the error and provides information to address what is missing or wrong in its utterance, e.g., No. I wanted you to ...
+Make Aware without Correction (UR3) - The user makes the system aware of the error without providing additional information, e.g., You’re wrong.
+Ask for Clarification (UR4) - The user asks for clarification, e.g., Are you sure? Is it really that ...
+Positive Feedback (UR5) - The user confirms that the assistant did a good job by directly saying so or thanking it, e.g., Thank you
+
+Given these guidelines, please recognize such user responses in the following dialogue. Please use the format:
+{
+"User Response Pattern": [Insert User Response Pattern],
+"User Response Text": [Insert User Response Text]
+}
+
+If there is no feedback, use the following format:
+{
+"User Response Pattern": "No Feedback",
+"User Response Text": ""
+}
+
+Conversation:
+# user: can fish microwave soup?
+# assistant: Fish can be cooked in a microwave, but it is not recommended to make a soup out of it. Microwaves do not cook fish effectively, as the heat is not evenly distributed and the fish may end up being undercooked in some areas and overcooked in others. Additionally, the microwave's moisture can cause the fish to become flaky and dry out.
+
+If you want to make a soup with fish, it is recommended to use a stovetop or oven to cook the fish first, then use the cooked fish to make the soup. Alternatively, you can use canned fish that has already been cooked and can be added directly to the soup.
+# user: But can they microwave soup tho?
+# assistant: Yes, you can microwave soup, but it is important to note that the microwave can affect the texture and flavor of the soup. Since microwaves cook food by emitting waves of electromagnetic energy, the soup may become hot and start to bubble rapidly, which can cause the ingredients to lose their texture and flavor. Additionally, the microwave may cause the soup to become dry or overcooked in some areas, which can affect its flavor and texture.
+
+If you want to heat up soup in the microwave, it is recommended to only heat it up for a short amount of time and to stir it frequently to prevent hot spots and overcooking. It's also a good idea to cover the container with a microwave-safe lid to retain moisture and prevent splatters.
+# user: I know i can but what about the fish?
+# assistant: As I mentioned earlier, it is not recommended to cook fish in a microwave. The microwave's heat is not evenly distributed and can cause the fish to become undercooked, dry, or even burnt in some areas. Additionally, the microwave's moisture can cause the fish to become flaky and lose its flavor and texture.
+
+If you want to include fish in your soup, it is recommended to cook the fish first using a stovetop or oven, then use the cooked fish to make the soup. Alternatively, you can use canned fish that has already been cooked and can be added directly to the soup.
+
+If you want to heat up the soup that contains fish, it is recommended to heat it up slowly over low heat on the stovetop or in a double boiler, or to use a slow cooker. This will allow the soup to heat up evenly and will not cause the fish to become overcooked or dry.
+
+Answer:
+{
+"User Response Pattern": "UR1",
+"User Response Text": "But can they microwave soup tho?"
+}
+
+{
+"User Response Pattern": "UR4",
+"User Response Text": "I know i can but what about the fish?"
+}
+
+Conversation:
+

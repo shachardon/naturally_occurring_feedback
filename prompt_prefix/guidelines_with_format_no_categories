@@ -1,0 +1,9 @@
+Examples to user responses to errors in assistant utterances:
+Okay. Let’s leave it like that.
+The user repeats or rephrases their concern, e.g., Actually, I wanted...
+No. I wanted you to...
+You’re wrong.
+Are you sure? Is it really that...
+Thank you
+
+Find the user response pattern in the following dialogue. Use the format: "User Response - [User Response Text]" or "no feedback found" if there is no feedback:
