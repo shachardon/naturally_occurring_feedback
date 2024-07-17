@@ -1,9 +1,5 @@
 # Learning from Naturally Occurring Feedback
 
-<p align="center">
-  <img src="figs/natural_feedback_fig1.jpg" width=512px>
-</p>
-
 Human feedback data is a critical component in developing language models. 
 However, collecting this feedback is costly and ultimately not scalable.
 
@@ -13,11 +9,16 @@ and leveraging it for model training.
 This repo contains the code for feedback extraction, and for using the already extracted feedback data from the paper.
 
 
+<p align="center">
+  <img src="figs/natural_feedback_fig1.jpg" width=512px>
+</p>
+
+
+
 Code
 ---
-The code for preparing the data is in the `extract_feedback.py` file.
+The code for extracting feedback data from chat data is in the `extract_feedback.py` file.
 
----
 
 Data
 ---
@@ -26,7 +27,7 @@ The dataset that was collected and used in this paper is available in the `data`
 The data is in a csv format, use `get_natural_feedback_dataset.py` to parse it.
 It is also available as a Huggingface 🤗 dataset [here](https://huggingface.co/datasets/shachardon/naturally_occurring_feedback).
 
-Citiation
+Citation
 ---
 If you find this work useful, please cite our paper:
 
