@@ -14,7 +14,7 @@ for i in range(len(extraction_df)):
     row = extraction_df[i]
     conversation_id = row["conversation_id"]
     feedback_turn = row["feedback_turn"]
-    org_row = lmsys_dataset[lmsys_dataset["conversation_id"] == conversation_id]
+    org_row = lmsys_dataset[lmsys_dataset["conversation_id"] == conversation_id].iloc[0]
     conversation = org_row["conversation"]
 
     conversation_context = []
