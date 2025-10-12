@@ -32,10 +32,10 @@ Citation
 If you find this work useful, please cite our paper:
 
 ```
-@misc{donyehiya2024learningnaturallyoccurringfeedback,
-      title={Learning from Naturally Occurring Feedback}, 
+@misc{donyehiya2025naturallyoccurringfeedbackcommon,
+      title={Naturally Occurring Feedback is Common, Extractable and Useful}, 
       author={Shachar Don-Yehiya and Leshem Choshen and Omri Abend},
-      year={2024},
+      year={2025},
       eprint={2407.10944},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
