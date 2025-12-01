@@ -9,24 +9,24 @@ import datetime
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 from difflib import SequenceMatcher
-from spacy_langdetect import LanguageDetector
-from spacy.language import Language
-import spacy
+# from spacy_langdetect import LanguageDetector
+# from spacy.language import Language
+# import spacy
 import re
 import json
 from collections import Counter
 import seaborn as sns
 import numpy as np
 
-nlp = spacy.load("en_core_web_sm")  # 1
+# nlp = spacy.load("en_core_web_sm")  # 1
 
 
-def get_lang_detector(nlp, name):
-    return LanguageDetector()
+# def get_lang_detector(nlp, name):
+#     return LanguageDetector()
 
 
-Language.factory("language_detector", func=get_lang_detector)
-nlp.add_pipe('language_detector', last=True)
+# Language.factory("language_detector", func=get_lang_detector)
+# nlp.add_pipe('language_detector', last=True)
 device = 'cuda' if cuda.is_available() else 'cpu'
 print(device)
 
@@ -53,9 +53,10 @@ feedback_categories_to_abbr = {"Repeat or Rephrase": "UR1",
                                "UR6": "UR6"}
 
 
-def filter_non_eng_responses(indices, examples_with_no_prefix=None):
+def filter_non_eng_responses(indices, examples_with_no_prefix=None, dataset_name="lmsys/lmsys-chat-1m"):
     if examples_with_no_prefix is None:
-        examples_with_no_prefix = get_user_response_from_lmsys(indices, max_examples=max(indices) + 1)
+        examples_with_no_prefix = get_user_response_from_lmsys(indices, max_examples=max(indices) + 1,
+                                                               dataset_name=dataset_name)
     examples_to_keep = []
     indices_to_keep = []
     indices_to_remove = []
@@ -169,19 +170,20 @@ def parse_formatted_answer_judge(answer, prompt):
     return feedbacks
 
 
-def load_lmsys(max_examples=100000):
+def load_conv(max_examples=100000, dataset_name="lmsys/lmsys-chat-1m"):
     # load the dataset and prepare fields
-    lmsys_dataset = datasets.load_dataset("lmsys/lmsys-chat-1m", cache_dir=CACHE_DIR,
+    lmsys_dataset = datasets.load_dataset(dataset_name, cache_dir=CACHE_DIR,
                                           token=TOKEN)
-    lmsys_dataset = lmsys_dataset['train'].select(range(min(max_examples * 10, 1000000)))  # to make things faster
+    lmsys_dataset = lmsys_dataset['train'].select(range(min(max_examples * 10, 838076 - 1)))  # to make things faster
     pd_dataset = lmsys_dataset.to_pandas()
     pd_dataset["iterations"] = pd_dataset["conversation"].apply(lambda x: len(x))
     pd_dataset = pd_dataset[pd_dataset["iterations"] > 3]
     return pd_dataset
 
 
-def prepare_examples_from_lmsys(indices, prompt_prefix="", max_examples=100000, model_id=None):
-    pd_dataset = load_lmsys(max_examples)
+def prepare_examples_from_lmsys(indices, prompt_prefix="", max_examples=100000, model_id=None,
+                                dataset_path="lmsys/lmsys-chat-1m"):
+    pd_dataset = load_conv(max_examples, dataset_path)
 
     if pd_dataset.shape[0] < max(indices):
         print("Warning: the dataset is too small for the requested indices")
@@ -206,8 +208,8 @@ def prepare_examples_from_lmsys(indices, prompt_prefix="", max_examples=100000, 
     return examples, indices
 
 
-def get_user_response_from_lmsys(indices, max_examples=100000):
-    pd_dataset = load_lmsys(max_examples)
+def get_user_response_from_lmsys(indices, max_examples=100000, dataset_name="lmsys/lmsys-chat-1m"):
+    pd_dataset = load_conv(max_examples, dataset_name=dataset_name)
     responses = []
 
     if pd_dataset.shape[0] < max(indices):
@@ -238,6 +240,7 @@ if __name__ == "__main__":
     parser.add_argument("--quantize", action="store_true")
     parser.add_argument("--data_size", type=int, default=-1)
     parser.add_argument("--continue_experiment", action="store_true")
+    parser.add_argument("--dataset_path", type=str, default="lmsys/lmsys-chat-1m")
     args = parser.parse_args()
 
     # read the prompt prefix file
@@ -246,11 +249,11 @@ if __name__ == "__main__":
             guidelines_prompt = f.read()
     else:
         guidelines_prompt = "There are five different patterns in user responses subsequent to errors in system utterances:\n" \
-                            "Ignore and Continue (UR1) - The user ignores the error and continues the conversation, e.g., Okay. Let’s leave it like that. \n" \
-                            "Repeat or Rephrase (UR2) - The user repeats or rephrases their concern, e.g., Actually, I wanted ... \n" \
-                            "Make Aware with Correction (UR3) - The user makes the system aware of the error and provides information to address what is missing or wrong in its utterance, e.g., No. I wanted you to ... \n" \
-                            "Make Aware without Correction (UR4) - The user makes the system aware of the error without providing additional information, e.g., You’re wrong. \n" \
-                            "Ask for Clarification (UR5) - The user asks for clarification, e.g., Are you sure? Is it really that ...\n" \
+                            "Repeat or Rephrase (UR1) - The user repeats or rephrases their concern, e.g., Actually, I wanted ... \n" \
+                            "Make Aware with Correction (UR2) - The user makes the system aware of the error and provides information to address what is missing or wrong in its utterance, e.g., No. I wanted you to ... \n" \
+                            "Make Aware without Correction (UR3) - The user makes the system aware of the error without providing additional information, e.g., You’re wrong. \n" \
+                            "Ask for Clarification (UR4) - The user asks for clarification, e.g., Are you sure? Is it really that ...\n" \
+                            "Positive Feedback (UR5) - The user confirms that the assistant did a good job by directly saying so or thanking it, e.g., Thank you\n" \
                             "\n" \
                             "Given these guidelines, please recognize such user responses in the following dialogue. If thet are not such, please say so:\n"
 
@@ -263,8 +266,12 @@ if __name__ == "__main__":
             filenames = [filename for filename in filenames if "model_response" in filename]
             indices = [int(filename[(len("model_response_")):-(len(".txt"))]) for filename in filenames]
             indices.sort()
-            examples_with_no_prefix = get_user_response_from_lmsys(indices, max_examples=max(indices) + 1)
-            indices, examples_with_no_prefix = filter_non_eng_responses(indices, examples_with_no_prefix)
+            examples_with_no_prefix = get_user_response_from_lmsys(indices, max_examples=max(indices) + 1,
+                                                                   dataset_name=args.dataset_path)
+            print("number of indices:", len(indices))
+            # indices, examples_with_no_prefix = filter_non_eng_responses(indices, examples_with_no_prefix,
+            # dataset_name=args.dataset_path)
+            print("number of indices:", len(indices))
             confidence_scores = []
             for i, idx in enumerate(indices):
                 print(f"parsing {idx}")
@@ -291,7 +298,7 @@ if __name__ == "__main__":
             indices.sort()
             if args.data_size > 0:
                 indices = [idx for idx in indices if idx < args.data_size]
-            # indices, _ = filter_non_eng_responses(indices)
+            # indices, _ = filter_non_eng_responses(indices, dataset_name=args.dataset_path)
             for idx in indices:
                 with open(os.path.join(args.existing_exp_dir, f"parsed_errors_{idx}.txt"), 'r') as f:
                     feedbacks = []
@@ -318,12 +325,13 @@ if __name__ == "__main__":
             indices = [idx for idx in indices if idx not in existing_indices]
 
         indices.sort()
-        # indices, _ = filter_non_eng_responses(indices)
+        # indices, _ = filter_non_eng_responses(indices, dataset_name=args.dataset_path)
 
-        examples, indices = prepare_examples_from_lmsys(indices, prompt_prefix=guidelines_prompt, model_id=args.model_id)
+        examples, indices = prepare_examples_from_lmsys(indices, prompt_prefix=guidelines_prompt,
+                                                        model_id=args.model_id, dataset_path=args.dataset_path)
 
         # load model and tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(args.model_id, cache_dir=CACHE_DIR)
+        tokenizer = AutoTokenizer.from_pretrained(args.model_id, cache_dir=CACHE_DIR, token=TOKEN)
 
         if args.quantize:
             quantization_config = BitsAndBytesConfig(
@@ -362,7 +370,8 @@ if __name__ == "__main__":
             full_path = os.path.join(dir_path_no_slash, timestamp_str)
             os.mkdir(full_path)
 
-        examples_with_no_prefix = get_user_response_from_lmsys(indices, max_examples=max(indices) + 1)
+        examples_with_no_prefix = get_user_response_from_lmsys(indices, max_examples=max(indices) + 1,
+                                                               dataset_name=args.dataset_path)
         i = 0
         for idx, example in zip(indices, examples):
             print("=====================================================")
@@ -387,3 +396,5 @@ if __name__ == "__main__":
             all_errors.append(feedbacks)
 
     print("mean num errors per conversation:", sum([len(errors) for errors in all_errors]) / len(all_errors) if (len(all_errors) > 0) else 0)
+    print("num of conversations with errors:", len([errors for errors in all_errors if len(errors) > 0]))
+    print("There are ", sum([len(errors) for errors in all_errors]), "errors out of", len(all_errors), len(indices), "conversations")
